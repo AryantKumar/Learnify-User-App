@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -29,6 +30,8 @@ public class SignUpActivity extends AppCompatActivity {
     FirebaseDatabase database;
     Dialog loadingDialog;
 
+    private boolean isPasswordVisible = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +49,24 @@ public class SignUpActivity extends AppCompatActivity {
             loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             loadingDialog.setCancelable(false);
         }
+
+        // Show/hide password logic
+        binding.eyeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isPasswordVisible = !isPasswordVisible;
+                if (isPasswordVisible) {
+                    binding.editPassword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    binding.eyeIcon.setImageResource(R.drawable.eye_open); // change icon
+                } else {
+                    binding.editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    binding.eyeIcon.setImageResource(R.drawable.eye); // change icon
+                }
+
+                // Move cursor to the end of text
+                binding.editPassword.setSelection(binding.editPassword.getText().length());
+            }
+        });
 
         binding.buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,20 +101,17 @@ public class SignUpActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     private void SignUp(String name, String email, String password) {
         loadingDialog.show();
 
-        // Start measuring the time before the sign-up process begins
         long startTime = System.currentTimeMillis();
 
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        // Log the time taken for the authentication process
                         long endTime = System.currentTimeMillis();
                         Log.d("SignUp", "Authentication time: " + (endTime - startTime) + "ms");
 
@@ -116,13 +134,11 @@ public class SignUpActivity extends AppCompatActivity {
                                                         if (task.isSuccessful()) {
                                                             Toast.makeText(SignUpActivity.this, "Welcome! Kindly confirm your email to complete your registration", Toast.LENGTH_SHORT).show();
 
-                                                            // Log in the user after email verification
                                                             auth.signInWithEmailAndPassword(email, password)
                                                                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                                                         @Override
                                                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                                                             if (task.isSuccessful()) {
-                                                                                // Navigate to activity_sign_in after successful login
                                                                                 Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
                                                                                 startActivity(intent);
                                                                                 finish();

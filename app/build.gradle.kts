@@ -75,4 +75,10 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
     implementation("com.razorpay:checkout:1.6.33")
+
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation ("org.json:json:20240303")
+
+// Code editor with highlighting
+
 }
